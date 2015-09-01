@@ -22,6 +22,9 @@ SOFTWARE.
 
 package images.gallery.view;
 
+import js.Browser;
+import js.html.ImageElement;
+import js.html.Element;
 import images.core.View;
 import images.core.DataView;
 
@@ -38,8 +41,10 @@ View for a single Image model.
 */
 class ImageView extends DataView<Image>
 {
-    var label:String;
-    var done:Bool;
+    var title:String;
+    var author:String;
+    var description:String;
+    var src:String;
 
 
 /**
@@ -50,7 +55,10 @@ class ImageView extends DataView<Image>
     public function new(?data:Image)
     {
         tagName = "li";
-        label = "";
+        title = "";
+        author = "";
+        description = "";
+        src = "";
         super(data);
     }
 
@@ -58,11 +66,19 @@ class ImageView extends DataView<Image>
 	Overrides dataChanged to update internal properties
 	@see example.core.DataView
 	*/
+
     override function dataChanged()
     {
         super.dataChanged();
-        label = data != null ? data.name : "";
-        done = data != null && data.done;
+        title = data != null ? data.title : "";
+        author =  data != null ? data.author : "";
+        description = data != null ? data.description : "";
+        src =  data != null ? data.src : "";
+
+        var image:ImageElement = Browser.document.createImageElement();
+        image.setAttribute("src",src);
+        trace(image);
+        element.appendChild(image);
     }
 
 /**
@@ -93,9 +109,11 @@ class ImageView extends DataView<Image>
 	*/
     override function update()
     {
-        element.innerHTML = label;
-        element.className = className + (done? " done" : "");
-        trace("ID: " + toString() + ", label: " + label + ", index: " + index);
+        //element.innerHTML =src;
+        //element. ="img";
+
+        //element.className = className + (done? " done" : "");
+        trace("ID: " + toString() + ", title: " + title + ", author: " + author + ", description: " + description + ", src: " + src + ", index: " + index);
     }
 
 /**

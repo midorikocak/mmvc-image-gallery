@@ -38,7 +38,7 @@ Updates view when data has been loaded.
 @see example.todo.signal.LoadTodoList
 */
 
-class GalleryViewMediator extends mmvc.impl.Mediator<TodoListView>
+class GalleryViewMediator extends mmvc.impl.Mediator<GalleryView>
 {
     @inject public var loadGallery:LoadGallery;
 

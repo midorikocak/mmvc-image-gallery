@@ -29,7 +29,7 @@ List of Images.
 @see mcore.data.ArrayList
 */
 
-class Gallery extends mcore.data.ArrayList<Todo>
+class Gallery extends mcore.data.ArrayList<Image>
 {
     public function new(?values:Array<Image>=null)
     {

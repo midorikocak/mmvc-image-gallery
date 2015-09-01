@@ -69,9 +69,9 @@ class ImageInfoView extends DataView<String>
         element.appendChild(label);
 
         button = Browser.document.createElement("a");
-        button.innerHTML = "New item";
-        button.onclick = js_onClick;
-        element.appendChild(button);
+        //button.innerHTML = "New item";
+        //button.onclick = js_onClick;
+        //element.appendChild(button);
 
     }
 

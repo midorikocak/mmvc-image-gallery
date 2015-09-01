@@ -77,12 +77,12 @@ class LoadGalleryCommand extends mmvc.impl.Command
 
         for(item in items)
         {
-            var image = new Image(item.title);
+            var image = new Image(item.title,item.description, item.author, item.src);
             //todo.done = item.done == true;
             list.add(image);
         }
 
-        loadTodoList.completed.dispatch(list);
+        loadGallery.completed.dispatch(list);
     }
 
 /**
