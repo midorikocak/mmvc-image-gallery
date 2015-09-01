@@ -62,7 +62,7 @@ class ApplicationContext extends mmvc.impl.Context
     override public function startup()
     {
 // wiring for gallery model
-        commandMap.mapSignalClass(LoadTodoList, LoadGalleryommand);
+        commandMap.mapSignalClass(LoadGallery, LoadGalleryCommand);
 
         injector.mapSingleton(Gallery);
 

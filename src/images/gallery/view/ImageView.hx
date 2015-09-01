@@ -58,12 +58,14 @@ class ImageView extends DataView<Image>
 	Overrides dataChanged to update internal properties
 	@see example.core.DataView
 	*/
+    /*
     override function dataChanged()
     {
         super.dataChanged();
         label = data != null ? data.name : "";
         done = data != null && data.done;
     }
+    */
 
 /**
 	Overrides initialized to set click handlers and

@@ -51,8 +51,8 @@ class ApplicationView extends View implements mmvc.api.IViewContainer
 	*/
     public function createViews()
     {
-        var todoView = new example.todo.view.TodoListView();
-        addChild(todoView);
+        var galleryView = new images.gallery.view.GalleryView();
+        addChild(galleryView);
     }
 
 /**

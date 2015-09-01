@@ -58,7 +58,7 @@ class GalleryView extends DataView<Gallery>
 	*/
     public function showError(message:String)
     {
-        statsView.setData(message);
+        infoView.setData(message);
     }
 
 /**
@@ -94,7 +94,8 @@ class GalleryView extends DataView<Gallery>
 
 	@param view 	TodoView to toggle done state
 	*/
-    function toggleTodoViewState(view:TodoView)
+    /*
+    function toggleTodoViewState(view:ImageView)
     {
         var data = view.data;
         data.done = !data.done;
@@ -102,7 +103,7 @@ class GalleryView extends DataView<Gallery>
 
         updateStats();
 
-    }
+    }*/
 
 
 /**
@@ -113,8 +114,8 @@ class GalleryView extends DataView<Gallery>
     {
         super.initialize();
 
-        statsView = new TodoStatsView();
-        addChild(statsView);
+        infoView = new ImageInfoView();
+        addChild(infoView);
     }
 
 
@@ -145,7 +146,7 @@ class GalleryView extends DataView<Gallery>
 
         for(child in children.concat([]))
         {
-            if (Std.is(child, TodoView))
+            if (Std.is(child, ImageView))
             {
                 removeChild(child);
             }
@@ -153,9 +154,9 @@ class GalleryView extends DataView<Gallery>
 
         if (data != null)
         {
-            for(todo in data)
+            for(image in data)
             {
-                var view = new TodoView(todo);
+                var view = new ImageView(image);
                 addChild(view);
             }
         }
@@ -168,18 +169,18 @@ class GalleryView extends DataView<Gallery>
     {
         if (data == null)
         {
-            statsView.setData("No data available");
+            infoView.setData("No data available");
             return;
         }
-        var remaining = data.getRemaining();
+        //var remaining = data.getRemaining();
 
-        var stats = switch(data.size)
+        var info = switch(data.size)
         {
-            case 0: "No Todo Items";
-            default: remaining + " of " + data.size + " Todo Items complete";
+            case 0: "No Images";
+            default: data.size + " Images";
         }
 
-        statsView.setData(stats);
+        infoView.setData(info);
     }
 }
 
