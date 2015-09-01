@@ -22,164 +22,81 @@ SOFTWARE.
 
 package images.gallery.view;
 
-import images.core.View;
-import images.core.DataView;
-import images.gallery.model.Image;
+import images.gallery.signal.LoadGallery;
 import images.gallery.model.Gallery;
+import images.gallery.model.Image;
+import images.gallery.view.GalleryView;
 
+import images.core.View;
 /**
-//Main TodoList view containing a list of Todo items
+Mediator for TodoListView.
 
-//Updates individual todo item state when user clicks on a todo item
+Loads default TodoList on registration.
+Updates view when data has been loaded.
 
-@see images.core.DataView
-@see images.gallery.view.ImageView
-@see images.gallery.model.Gallery
+@see example.todo.view.TodoListView
+@see example.todo.signal.LoadTodoList
 */
-class GalleryView extends DataView<Gallery>
+
+class GalleryViewMediator extends mmvc.impl.Mediator<TodoListView>
 {
-    //inline public static var CREATE_TODO = "CREATE_TODO";
-    var infoView:ImageInfoView;
+    @inject public var loadGallery:LoadGallery;
 
-/**
-	Overrides constructor to set js tag name to unordered list (ul)
+    var list:Gallery;
 
-	@param data 	default TodoList
-	@see example.core.DataView
-	*/
-    public function new(?data:Gallery)
+    public function new()
     {
-    tagName = "ul";
-        super(data);
+        super();
     }
 
 /**
-	Displays an error in the stats view
+	Dispatches loadTodoList on registration of mediator
+	@see mmvc.impl.Mediator
+	@see mmvc.base.MediatorBase.mediate()
 	*/
-    public function showError(message:String)
+    override function onRegister()
     {
-        statsView.setData(message);
+//using mediate() to store listeners for easy cleanup during removal
+        mediate(view.signal.add(viewHandler));
+        mediate(loadGallery.completed.addOnce(loadCompleted));
+        mediate(loadGallery.failed.addOnce(loadFailed));
+
+        loadGallery.dispatch();
     }
 
 /**
-	Overrides dispatched to handle ACTIONED events from child views.
-
-	@see example.core.DataView
+	Override onRemove to remove any unmediated listeners
+	@see mmvc.impl.Mediator
 	*/
-    override public function dispatch(event:String, view:View)
+    override public function onRemove():Void
     {
-        switch(event)
+        super.onRemove();
+//remove un mediated listeners
+    }
+
+/**
+	callback for successful load of TodoList
+	@see example.todo.signal.LoadTodoList
+	*/
+    function loadCompleted(list:Gallery)
+    {
+        this.list = list;
+        view.setData(list);
+    }
+
+    function loadFailed(error:Dynamic)
+    {
+        view.showError(Std.string(error));
+    }
+
+/**
+	Adds a new todo item to the model when CREATE_TODO event is dispatched
+	*/
+    function viewHandler(event:String, view:View)
+    {
+        /*if (event == GalleryView.SHOW_IMAGE)
         {
-            case View.ACTIONED:
-                {
-                    if (Std.is(view, ImageView))
-                    {
-                        var imageView = cast view;
-                        toggleTodoViewState(todoView);
-                    }
-                    else if (Std.is(view, TodoStatsView))
-                    {
-                        super.dispatch(CREATE_TODO, this);
-                    }
-                }
-            default:
-                {
-                    super.dispatch(event, view);
-                }
-        }
-    }
-
-/**
-	Toggles the done state of a single TodoView
-
-	@param view 	TodoView to toggle done state
-	*/
-    function toggleTodoViewState(view:TodoView)
-    {
-        var data = view.data;
-        data.done = !data.done;
-        view.setData(data, true);
-
-        updateStats();
-
-    }
-
-
-/**
-	Overrides initialized to create stats view
-	@see example.core.View
-	*/
-    override function initialize()
-    {
-        super.initialize();
-
-        statsView = new TodoStatsView();
-        addChild(statsView);
-    }
-
-
-/**
-	Overrides dataChanged to add/remove listeners to collection change event
-
-	@see example.core.DataView
-	*/
-    override function dataChanged()
-    {
-        super.dataChanged();
-
-        if (this.previousData != null)
-            this.previousData.changed.remove(collectionChanged);
-
-        if (data != null)
-            data.changed.add(collectionChanged);
-
-        collectionChanged();
-    }
-
-/**
-	updates child views based on current size of data
-	*/
-    function collectionChanged()
-    {
-        updateStats();
-
-        for(child in children.concat([]))
-        {
-            if (Std.is(child, TodoView))
-            {
-                removeChild(child);
-            }
-        }
-
-        if (data != null)
-        {
-            for(todo in data)
-            {
-                var view = new TodoView(todo);
-                addChild(view);
-            }
-        }
-    }
-
-/**
-	Updates the stats view based on the number of done Todo items
-	*/
-    function updateStats()
-    {
-        if (data == null)
-        {
-            statsView.setData("No data available");
-            return;
-        }
-        var remaining = data.getRemaining();
-
-        var stats = switch(data.size)
-        {
-            case 0: "No Todo Items";
-            default: remaining + " of " + data.size + " Todo Items complete";
-        }
-
-        statsView.setData(stats);
+            list.add(new Todo());
+        }*/
     }
 }
-

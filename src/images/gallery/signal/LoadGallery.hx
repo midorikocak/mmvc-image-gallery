@@ -40,7 +40,7 @@ class LoadGallery extends msignal.Signal0
 /**
 	dispatched once TodoList has been loaded
 	*/
-    public var completed:Signal1<TodoList>;
+    public var completed:Signal1<Gallery>;
 
 /**
 	Dispatched if application unable to load TodoList
