@@ -22,6 +22,8 @@ SOFTWARE.
 
 package images.gallery.view;
 
+import msignal.Signal.Signal1;
+import images.gallery.model.Lightbox;
 import js.Browser;
 import js.html.ImageElement;
 import js.html.Element;
@@ -36,7 +38,7 @@ import js.Browser.document;
 class LightboxView extends View
 {
     public var data(default,set):Image;
-
+    //public var lightboxClosed:Signal1<Lightbox>;
 
     public function new()
     {
