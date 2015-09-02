@@ -30,7 +30,7 @@ import images.app.ApplicationView;
 import images.app.ApplicationViewMediator;
 
 // TODO Module
-import images.gallery.signal.LoadGallery;
+import images.gallery.trigger.LoadGallery;
 import images.gallery.command.LoadGalleryCommand;
 import images.gallery.model.Gallery;
 import images.gallery.view.GalleryView;
@@ -62,8 +62,8 @@ class ApplicationContext extends mmvc.impl.Context
     override public function startup()
     {
 // wiring for gallery model
-        commandMap.mapSignalClass(LoadGallery, LoadGalleryCommand);
-
+        //commandMap.mapSignalClass(LoadGallery, LoadGalleryCommand);
+        triggerMap.map(LoadGallery,LoadGalleryCommand);
         injector.mapSingleton(Gallery);
 
         mediatorMap.mapView(GalleryView, GalleryViewMediator);

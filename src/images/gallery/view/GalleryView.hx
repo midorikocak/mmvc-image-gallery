@@ -22,6 +22,8 @@ SOFTWARE.
 
 package images.gallery.view;
 
+import images.gallery.model.Image;
+import msignal.Signal;
 import images.gallery.view.LightboxView;
 import images.core.View;
 import images.gallery.model.Gallery;
@@ -40,6 +42,8 @@ class GalleryView extends View
 
     public var data(default,set):Gallery;
 
+    public var itemSelected:Signal1<Image>;
+
 /**
 	Overrides constructor to set js tag name to unordered list (ul)
 
@@ -49,6 +53,7 @@ class GalleryView extends View
     public function new()
     {
         tagName = "ul";
+        itemSelected = new Signal1();
         super();
     }
 
@@ -98,6 +103,7 @@ class GalleryView extends View
                 }
         }
     }
+
 
 
     function clearData(){

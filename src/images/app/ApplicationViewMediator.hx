@@ -22,7 +22,6 @@ SOFTWARE.
 
 package images.app;
 
-import images.gallery.signal.LoadGallery;
 import images.gallery.model.Gallery;
 import images.gallery.model.Gallery;
 

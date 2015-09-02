@@ -22,7 +22,7 @@ SOFTWARE.
 
 package images.gallery.view;
 
-import images.gallery.signal.LoadGallery;
+import images.gallery.trigger.LoadGallery;
 import images.gallery.model.Gallery;
 import images.gallery.model.Image;
 import images.gallery.view.GalleryView;
@@ -38,10 +38,8 @@ Updates view when data has been loaded.
 @see example.todo.signal.LoadTodoList
 */
 
-class GalleryViewMediator extends mmvc.impl.Mediator<GalleryView>
+class GalleryViewMediator extends mmvc.impl.TriggerMediator<GalleryView>
 {
-    @inject public var loadGallery:LoadGallery;
-
     //var list:Gallery;
 
     public function new()
@@ -58,10 +56,15 @@ class GalleryViewMediator extends mmvc.impl.Mediator<GalleryView>
     {
 //using mediate() to store listeners for easy cleanup during removal
         mediate(view.signal.add(viewHandler));
-        mediate(loadGallery.completed.addOnce(loadCompleted));
-        //mediate(loadGallery.failed.addOnce(loadFailed));
 
-        loadGallery.dispatch();
+        var trigger = new LoadGallery();
+
+        mediate(trigger.completed.addOnce(loadCompleted));
+
+        //mediate(loadGallery.failed.addOnce(loadFailed));
+        trace('happened');
+        dispatch(trigger);
+        //loadGallery.dispatch();
     }
 
 /**

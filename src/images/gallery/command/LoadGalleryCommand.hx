@@ -22,7 +22,7 @@ SOFTWARE.
 
 package images.gallery.command;
 
-import images.gallery.signal.LoadGallery;
+import images.gallery.trigger.LoadGallery;
 import images.gallery.model.Gallery;
 import images.gallery.model.Image;
 
@@ -37,13 +37,10 @@ Dispatches LoadGallery.completed or failed signal based on result of loader.
 @see example.galllery.signal.LoadLoadGallery
 @see m.loader.JSONLoader
 */
-class LoadGalleryCommand extends mmvc.impl.Command
+class LoadGalleryCommand extends mmvc.impl.TriggerCommand<LoadGallery>
 {
     @inject
     public var list:Gallery;
-
-    @inject
-    public var loadGallery:LoadGallery;
 
     var loader:JSONLoader;
 
@@ -57,8 +54,9 @@ class LoadGalleryCommand extends mmvc.impl.Command
 	*/
     override public function execute():Void
     {
+        trace('loaded');
         loader = new JSONLoader("data/data.json");
-        loader.completed.addOnce(completed);
+        loader.completed.addOnce(onCompleted);
         loader.failed.addOnce(failed);
         loader.load();
     }
@@ -69,7 +67,7 @@ class LoadGalleryCommand extends mmvc.impl.Command
 
 	@param data 	raw json object
 	*/
-    function completed(data:Dynamic)
+    function onCompleted(data:Dynamic)
     {
         loader.failed.remove(failed);
 
@@ -78,11 +76,10 @@ class LoadGalleryCommand extends mmvc.impl.Command
         for(item in items)
         {
             var image = new Image(item.title,item.description, item.author, item.src);
-            //todo.done = item.done == true;
             list.add(image);
         }
 
-        loadGallery.completed.dispatch(list);
+        trigger.completed.dispatch(list);
     }
 
 /**
@@ -90,8 +87,8 @@ class LoadGalleryCommand extends mmvc.impl.Command
 	*/
     function failed(error:LoaderError)
     {
-        loader.completed.remove(completed);
+        loader.completed.remove(onCompleted);
 
-        loadGallery.failed.dispatch(Std.string(error));
+        trigger.failed.dispatch(Std.string(error));
     }
 }

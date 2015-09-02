@@ -802,7 +802,7 @@ images_app_ApplicationContext.__name__ = ["images","app","ApplicationContext"];
 images_app_ApplicationContext.__super__ = mmvc_impl_Context;
 images_app_ApplicationContext.prototype = $extend(mmvc_impl_Context.prototype,{
 	startup: function() {
-		this.get_commandMap().mapSignalClass(images_gallery_signal_LoadGallery,images_gallery_command_LoadGalleryCommand);
+		this.get_triggerMap().map(images_gallery_trigger_LoadGallery,images_gallery_command_LoadGalleryCommand);
 		this.get_injector().mapSingleton(images_gallery_model_Gallery);
 		this.get_mediatorMap().mapView(images_gallery_view_GalleryView,images_gallery_view_GalleryViewMediator);
 		this.get_mediatorMap().mapView(images_app_ApplicationView,images_app_ApplicationViewMediator);
@@ -989,30 +989,34 @@ mmvc_api_ICommand.__name__ = ["mmvc","api","ICommand"];
 mmvc_api_ICommand.prototype = {
 	__class__: mmvc_api_ICommand
 };
-var mmvc_impl_Command = function() {
+var mmvc_impl_TriggerCommand = function() {
 };
-$hxClasses["mmvc.impl.Command"] = mmvc_impl_Command;
-mmvc_impl_Command.__name__ = ["mmvc","impl","Command"];
-mmvc_impl_Command.__interfaces__ = [mmvc_api_ICommand];
-mmvc_impl_Command.prototype = {
+$hxClasses["mmvc.impl.TriggerCommand"] = mmvc_impl_TriggerCommand;
+mmvc_impl_TriggerCommand.__name__ = ["mmvc","impl","TriggerCommand"];
+mmvc_impl_TriggerCommand.__interfaces__ = [mmvc_api_ICommand];
+mmvc_impl_TriggerCommand.prototype = {
 	execute: function() {
 	}
-	,__class__: mmvc_impl_Command
+	,dispatch: function(trigger) {
+		this.triggerMap.dispatch(trigger);
+	}
+	,__class__: mmvc_impl_TriggerCommand
 };
 var images_gallery_command_LoadGalleryCommand = function() {
-	mmvc_impl_Command.call(this);
+	mmvc_impl_TriggerCommand.call(this);
 };
 $hxClasses["images.gallery.command.LoadGalleryCommand"] = images_gallery_command_LoadGalleryCommand;
 images_gallery_command_LoadGalleryCommand.__name__ = ["images","gallery","command","LoadGalleryCommand"];
-images_gallery_command_LoadGalleryCommand.__super__ = mmvc_impl_Command;
-images_gallery_command_LoadGalleryCommand.prototype = $extend(mmvc_impl_Command.prototype,{
+images_gallery_command_LoadGalleryCommand.__super__ = mmvc_impl_TriggerCommand;
+images_gallery_command_LoadGalleryCommand.prototype = $extend(mmvc_impl_TriggerCommand.prototype,{
 	execute: function() {
+		console.log("loaded");
 		this.loader = new mcore_loader_JSONLoader("data/data.json");
-		this.loader.completed.addOnce($bind(this,this.completed));
+		this.loader.completed.addOnce($bind(this,this.onCompleted));
 		this.loader.failed.addOnce($bind(this,this.failed));
 		this.loader.load();
 	}
-	,completed: function(data) {
+	,onCompleted: function(data) {
 		this.loader.failed.remove($bind(this,this.failed));
 		var items = data.items;
 		var _g = 0;
@@ -1022,11 +1026,11 @@ images_gallery_command_LoadGalleryCommand.prototype = $extend(mmvc_impl_Command.
 			var image = new images_gallery_model_Image(item.title,item.description,item.author,item.src);
 			this.list.add(image);
 		}
-		this.loadGallery.completed.dispatch(this.list);
+		this.trigger.completed.dispatch(this.list);
 	}
 	,failed: function(error) {
-		this.loader.completed.remove($bind(this,this.completed));
-		this.loadGallery.failed.dispatch(Std.string(error));
+		this.loader.completed.remove($bind(this,this.onCompleted));
+		this.trigger.failed.dispatch(Std.string(error));
 	}
 	,__class__: images_gallery_command_LoadGalleryCommand
 });
@@ -1174,99 +1178,15 @@ images_gallery_model_Image.prototype = {
 	}
 	,__class__: images_gallery_model_Image
 };
-var msignal_Signal = function(valueClasses) {
-	if(valueClasses == null) valueClasses = [];
-	this.valueClasses = valueClasses;
-	this.slots = msignal_SlotList.NIL;
-	this.priorityBased = false;
-};
-$hxClasses["msignal.Signal"] = msignal_Signal;
-msignal_Signal.__name__ = ["msignal","Signal"];
-msignal_Signal.prototype = {
-	add: function(listener) {
-		return this.registerListener(listener);
-	}
-	,addOnce: function(listener) {
-		return this.registerListener(listener,true);
-	}
-	,addWithPriority: function(listener,priority) {
-		if(priority == null) priority = 0;
-		return this.registerListener(listener,false,priority);
-	}
-	,addOnceWithPriority: function(listener,priority) {
-		if(priority == null) priority = 0;
-		return this.registerListener(listener,true,priority);
-	}
-	,remove: function(listener) {
-		var slot = this.slots.find(listener);
-		if(slot == null) return null;
-		this.slots = this.slots.filterNot(listener);
-		return slot;
-	}
-	,removeAll: function() {
-		this.slots = msignal_SlotList.NIL;
-	}
-	,registerListener: function(listener,once,priority) {
-		if(priority == null) priority = 0;
-		if(once == null) once = false;
-		if(this.registrationPossible(listener,once)) {
-			var newSlot = this.createSlot(listener,once,priority);
-			if(!this.priorityBased && priority != 0) this.priorityBased = true;
-			if(!this.priorityBased && priority == 0) this.slots = this.slots.prepend(newSlot); else this.slots = this.slots.insertWithPriority(newSlot);
-			return newSlot;
-		}
-		return this.slots.find(listener);
-	}
-	,registrationPossible: function(listener,once) {
-		if(!this.slots.nonEmpty) return true;
-		var existingSlot = this.slots.find(listener);
-		if(existingSlot == null) return true;
-		if(existingSlot.once != once) throw new js__$Boot_HaxeError("You cannot addOnce() then add() the same listener without removing the relationship first.");
-		return false;
-	}
-	,createSlot: function(listener,once,priority) {
-		if(priority == null) priority = 0;
-		if(once == null) once = false;
-		return null;
-	}
-	,get_numListeners: function() {
-		return this.slots.get_length();
-	}
-	,__class__: msignal_Signal
-	,__properties__: {get_numListeners:"get_numListeners"}
-};
-var msignal_Signal0 = function() {
-	msignal_Signal.call(this);
-};
-$hxClasses["msignal.Signal0"] = msignal_Signal0;
-msignal_Signal0.__name__ = ["msignal","Signal0"];
-msignal_Signal0.__super__ = msignal_Signal;
-msignal_Signal0.prototype = $extend(msignal_Signal.prototype,{
-	dispatch: function() {
-		var slotsToProcess = this.slots;
-		while(slotsToProcess.nonEmpty) {
-			slotsToProcess.head.execute();
-			slotsToProcess = slotsToProcess.tail;
-		}
-	}
-	,createSlot: function(listener,once,priority) {
-		if(priority == null) priority = 0;
-		if(once == null) once = false;
-		return new msignal_Slot0(this,listener,once,priority);
-	}
-	,__class__: msignal_Signal0
-});
-var images_gallery_signal_LoadGallery = function() {
-	msignal_Signal0.call(this);
+var images_gallery_trigger_LoadGallery = function() {
 	this.completed = new msignal_Signal1(images_gallery_model_Gallery);
 	this.failed = new msignal_Signal1(Dynamic);
 };
-$hxClasses["images.gallery.signal.LoadGallery"] = images_gallery_signal_LoadGallery;
-images_gallery_signal_LoadGallery.__name__ = ["images","gallery","signal","LoadGallery"];
-images_gallery_signal_LoadGallery.__super__ = msignal_Signal0;
-images_gallery_signal_LoadGallery.prototype = $extend(msignal_Signal0.prototype,{
-	__class__: images_gallery_signal_LoadGallery
-});
+$hxClasses["images.gallery.trigger.LoadGallery"] = images_gallery_trigger_LoadGallery;
+images_gallery_trigger_LoadGallery.__name__ = ["images","gallery","trigger","LoadGallery"];
+images_gallery_trigger_LoadGallery.prototype = {
+	__class__: images_gallery_trigger_LoadGallery
+};
 var images_gallery_view_GalleryView = function() {
 	this.tagName = "ul";
 	images_core_View.call(this);
@@ -1330,20 +1250,34 @@ images_gallery_view_GalleryView.prototype = $extend(images_core_View.prototype,{
 	,__class__: images_gallery_view_GalleryView
 	,__properties__: $extend(images_core_View.prototype.__properties__,{set_data:"set_data"})
 });
-var images_gallery_view_GalleryViewMediator = function() {
+var mmvc_impl_TriggerMediator = function() {
 	mmvc_impl_Mediator.call(this);
+};
+$hxClasses["mmvc.impl.TriggerMediator"] = mmvc_impl_TriggerMediator;
+mmvc_impl_TriggerMediator.__name__ = ["mmvc","impl","TriggerMediator"];
+mmvc_impl_TriggerMediator.__super__ = mmvc_impl_Mediator;
+mmvc_impl_TriggerMediator.prototype = $extend(mmvc_impl_Mediator.prototype,{
+	dispatch: function(trigger) {
+		this.triggerMap.dispatch(trigger);
+	}
+	,__class__: mmvc_impl_TriggerMediator
+});
+var images_gallery_view_GalleryViewMediator = function() {
+	mmvc_impl_TriggerMediator.call(this);
 };
 $hxClasses["images.gallery.view.GalleryViewMediator"] = images_gallery_view_GalleryViewMediator;
 images_gallery_view_GalleryViewMediator.__name__ = ["images","gallery","view","GalleryViewMediator"];
-images_gallery_view_GalleryViewMediator.__super__ = mmvc_impl_Mediator;
-images_gallery_view_GalleryViewMediator.prototype = $extend(mmvc_impl_Mediator.prototype,{
+images_gallery_view_GalleryViewMediator.__super__ = mmvc_impl_TriggerMediator;
+images_gallery_view_GalleryViewMediator.prototype = $extend(mmvc_impl_TriggerMediator.prototype,{
 	onRegister: function() {
 		this.mediate(this.view.signal.add($bind(this,this.viewHandler)));
-		this.mediate(this.loadGallery.completed.addOnce($bind(this,this.loadCompleted)));
-		this.loadGallery.dispatch();
+		var trigger = new images_gallery_trigger_LoadGallery();
+		this.mediate(trigger.completed.addOnce($bind(this,this.loadCompleted)));
+		console.log("happened");
+		this.dispatch(trigger);
 	}
 	,onRemove: function() {
-		mmvc_impl_Mediator.prototype.onRemove.call(this);
+		mmvc_impl_TriggerMediator.prototype.onRemove.call(this);
 	}
 	,loadCompleted: function(list) {
 		this.view.set_data(list);
@@ -2998,19 +2932,88 @@ mmvc_base_ViewMap.prototype = $extend(mmvc_base_ViewMapBase.prototype,{
 	}
 	,__class__: mmvc_base_ViewMap
 });
-var mmvc_impl_TriggerCommand = function() {
+var msignal_Signal = function(valueClasses) {
+	if(valueClasses == null) valueClasses = [];
+	this.valueClasses = valueClasses;
+	this.slots = msignal_SlotList.NIL;
+	this.priorityBased = false;
 };
-$hxClasses["mmvc.impl.TriggerCommand"] = mmvc_impl_TriggerCommand;
-mmvc_impl_TriggerCommand.__name__ = ["mmvc","impl","TriggerCommand"];
-mmvc_impl_TriggerCommand.__interfaces__ = [mmvc_api_ICommand];
-mmvc_impl_TriggerCommand.prototype = {
-	execute: function() {
+$hxClasses["msignal.Signal"] = msignal_Signal;
+msignal_Signal.__name__ = ["msignal","Signal"];
+msignal_Signal.prototype = {
+	add: function(listener) {
+		return this.registerListener(listener);
 	}
-	,dispatch: function(trigger) {
-		this.triggerMap.dispatch(trigger);
+	,addOnce: function(listener) {
+		return this.registerListener(listener,true);
 	}
-	,__class__: mmvc_impl_TriggerCommand
+	,addWithPriority: function(listener,priority) {
+		if(priority == null) priority = 0;
+		return this.registerListener(listener,false,priority);
+	}
+	,addOnceWithPriority: function(listener,priority) {
+		if(priority == null) priority = 0;
+		return this.registerListener(listener,true,priority);
+	}
+	,remove: function(listener) {
+		var slot = this.slots.find(listener);
+		if(slot == null) return null;
+		this.slots = this.slots.filterNot(listener);
+		return slot;
+	}
+	,removeAll: function() {
+		this.slots = msignal_SlotList.NIL;
+	}
+	,registerListener: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		if(this.registrationPossible(listener,once)) {
+			var newSlot = this.createSlot(listener,once,priority);
+			if(!this.priorityBased && priority != 0) this.priorityBased = true;
+			if(!this.priorityBased && priority == 0) this.slots = this.slots.prepend(newSlot); else this.slots = this.slots.insertWithPriority(newSlot);
+			return newSlot;
+		}
+		return this.slots.find(listener);
+	}
+	,registrationPossible: function(listener,once) {
+		if(!this.slots.nonEmpty) return true;
+		var existingSlot = this.slots.find(listener);
+		if(existingSlot == null) return true;
+		if(existingSlot.once != once) throw new js__$Boot_HaxeError("You cannot addOnce() then add() the same listener without removing the relationship first.");
+		return false;
+	}
+	,createSlot: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		return null;
+	}
+	,get_numListeners: function() {
+		return this.slots.get_length();
+	}
+	,__class__: msignal_Signal
+	,__properties__: {get_numListeners:"get_numListeners"}
 };
+var msignal_Signal0 = function() {
+	msignal_Signal.call(this);
+};
+$hxClasses["msignal.Signal0"] = msignal_Signal0;
+msignal_Signal0.__name__ = ["msignal","Signal0"];
+msignal_Signal0.__super__ = msignal_Signal;
+msignal_Signal0.prototype = $extend(msignal_Signal.prototype,{
+	dispatch: function() {
+		var slotsToProcess = this.slots;
+		while(slotsToProcess.nonEmpty) {
+			slotsToProcess.head.execute();
+			slotsToProcess = slotsToProcess.tail;
+		}
+	}
+	,createSlot: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		return new msignal_Slot0(this,listener,once,priority);
+	}
+	,__class__: msignal_Signal0
+});
 var msignal_Signal1 = function(type) {
 	msignal_Signal.call(this,[type]);
 };
@@ -3256,10 +3259,10 @@ mmvc_api_IViewContainer.__meta__ = { obj : { 'interface' : null}};
 mmvc_api_IMediator.__meta__ = { obj : { 'interface' : null}};
 mmvc_impl_Mediator.__meta__ = { fields : { injector : { type : ["minject.Injector"], inject : null}, contextView : { type : ["mmvc.api.IViewContainer"], inject : null}, mediatorMap : { type : ["mmvc.api.IMediatorMap"], inject : null}}};
 mmvc_api_ICommand.__meta__ = { obj : { 'interface' : null}};
-mmvc_impl_Command.__meta__ = { fields : { contextView : { type : ["mmvc.api.IViewContainer"], inject : null}, commandMap : { type : ["mmvc.api.ICommandMap"], inject : null}, injector : { type : ["minject.Injector"], inject : null}, mediatorMap : { type : ["mmvc.api.IMediatorMap"], inject : null}, signal : { type : ["msignal.Signal"], inject : null}}};
-images_gallery_command_LoadGalleryCommand.__meta__ = { fields : { list : { type : ["images.gallery.model.Gallery"], inject : null}, loadGallery : { type : ["images.gallery.signal.LoadGallery"], inject : null}}};
+mmvc_impl_TriggerCommand.__meta__ = { fields : { contextView : { type : ["mmvc.api.IViewContainer"], inject : null}, commandMap : { type : ["mmvc.api.ICommandMap"], inject : null}, injector : { type : ["minject.Injector"], inject : null}, mediatorMap : { type : ["mmvc.api.IMediatorMap"], inject : null}, triggerMap : { type : ["mmvc.api.ITriggerMap"], inject : null}}};
+images_gallery_command_LoadGalleryCommand.__meta__ = { fields : { list : { type : ["images.gallery.model.Gallery"], inject : null}}};
 mcore_data_Collection.__meta__ = { obj : { 'interface' : null}};
-images_gallery_view_GalleryViewMediator.__meta__ = { fields : { loadGallery : { type : ["images.gallery.signal.LoadGallery"], inject : null}}};
+mmvc_impl_TriggerMediator.__meta__ = { fields : { triggerMap : { type : ["mmvc.api.ITriggerMap"], inject : null}}};
 js_Boot.__toStr = {}.toString;
 mcore_loader_Loader.__meta__ = { obj : { 'interface' : null}};
 minject_point_InjectionPoint.__meta__ = { obj : { 'interface' : null}};
@@ -3267,6 +3270,5 @@ mmvc_api_ICommandMap.__meta__ = { obj : { 'interface' : null}};
 mmvc_api_IMediatorMap.__meta__ = { obj : { 'interface' : null}};
 mmvc_api_ITriggerMap.__meta__ = { obj : { 'interface' : null}};
 mmvc_api_IViewMap.__meta__ = { obj : { 'interface' : null}};
-mmvc_impl_TriggerCommand.__meta__ = { fields : { contextView : { type : ["mmvc.api.IViewContainer"], inject : null}, commandMap : { type : ["mmvc.api.ICommandMap"], inject : null}, injector : { type : ["minject.Injector"], inject : null}, mediatorMap : { type : ["mmvc.api.IMediatorMap"], inject : null}, triggerMap : { type : ["mmvc.api.ITriggerMap"], inject : null}}};
 Main.main();
 })(typeof console != "undefined" ? console : {log:function(){}});
