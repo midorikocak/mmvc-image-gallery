@@ -44,18 +44,26 @@ class LightboxView extends View
     {
         tagName = "div";
         super();
+        //element.style.position = 'absolute';
     }
 
     function set_data(value:Image):Image{
         if(data!=value){
             data = value;
+            clearData();
             updateData();
         }
         return value;
     }
 
-    function updateData(){
 
+    function clearData()
+    {
+        element.innerHTML = "";
+    }
+
+
+    public function updateData(){
         var imageElement:ImageElement = Browser.document.createImageElement();
         imageElement.src = data.src;
         imageElement.alt = data.title;

@@ -29,6 +29,7 @@ class ApplicationContext extends mmvc.impl.Context {
 
         injector.mapSingleton(Gallery);
         injector.mapSingleton(Lightbox);
+
         mediatorMap.mapView(LightboxView, LightboxViewMediator);
         mediatorMap.mapView(GalleryView, GalleryViewMediator);
         mediatorMap.mapView(ApplicationView, ApplicationViewMediator);

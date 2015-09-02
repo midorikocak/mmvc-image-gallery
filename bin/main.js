@@ -901,6 +901,19 @@ images_app_ApplicationView.prototype = $extend(images_core_View.prototype,{
 		var lightboxView = new images_gallery_view_LightboxView();
 		this.addChild(lightboxView);
 	}
+	,updateLightbox: function(data) {
+		console.log("update but where?");
+		var _g = 0;
+		var _g1 = this.children.concat([]);
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			if(js_Boot.__instanceof(child,images_gallery_view_LightboxView)) {
+				var lightboxView = child;
+				lightboxView.set_data(data);
+			}
+		}
+	}
 	,dispatch: function(event,view) {
 		switch(event) {
 		case "added":
@@ -983,8 +996,12 @@ images_app_ApplicationViewMediator.__super__ = mmvc_impl_Mediator;
 images_app_ApplicationViewMediator.prototype = $extend(mmvc_impl_Mediator.prototype,{
 	onRegister: function() {
 		mmvc_impl_Mediator.prototype.onRegister.call(this);
-		this.view.createGallery();
 		this.view.createLightbox();
+		this.view.createGallery();
+		this.lightbox.dataChanged.add($bind(this,this.updateLightbox));
+	}
+	,updateLightbox: function() {
+		this.view.updateLightbox(this.lightbox.data);
 	}
 	,onRemove: function() {
 		mmvc_impl_Mediator.prototype.onRemove.call(this);
@@ -1370,9 +1387,13 @@ images_gallery_view_LightboxView.prototype = $extend(images_core_View.prototype,
 	set_data: function(value) {
 		if(this.data != value) {
 			this.data = value;
+			this.clearData();
 			this.updateData();
 		}
 		return value;
+	}
+	,clearData: function() {
+		this.element.innerHTML = "";
 	}
 	,updateData: function() {
 		var imageElement;
@@ -1415,10 +1436,6 @@ images_gallery_view_LightboxViewMediator.prototype = $extend(mmvc_impl_TriggerMe
 		var trigger = new images_gallery_trigger_LoadLightbox();
 		trigger.completed.addOnce($bind(this,this.loadCompleted));
 		this.dispatch(trigger);
-	}
-	,onDataChanged: function(lightbox) {
-		console.log("data changed 2");
-		this.view.set_data(lightbox.data);
 	}
 	,onRemove: function() {
 		mmvc_impl_TriggerMediator.prototype.onRemove.call(this);
@@ -3320,6 +3337,7 @@ images_core_View.idCounter = 0;
 mmvc_api_IViewContainer.__meta__ = { obj : { 'interface' : null}};
 mmvc_api_IMediator.__meta__ = { obj : { 'interface' : null}};
 mmvc_impl_Mediator.__meta__ = { fields : { injector : { type : ["minject.Injector"], inject : null}, contextView : { type : ["mmvc.api.IViewContainer"], inject : null}, mediatorMap : { type : ["mmvc.api.IMediatorMap"], inject : null}}};
+images_app_ApplicationViewMediator.__meta__ = { fields : { lightbox : { type : ["images.gallery.model.Lightbox"], inject : null}}};
 mmvc_api_ICommand.__meta__ = { obj : { 'interface' : null}};
 mmvc_impl_TriggerCommand.__meta__ = { fields : { contextView : { type : ["mmvc.api.IViewContainer"], inject : null}, commandMap : { type : ["mmvc.api.ICommandMap"], inject : null}, injector : { type : ["minject.Injector"], inject : null}, mediatorMap : { type : ["mmvc.api.IMediatorMap"], inject : null}, triggerMap : { type : ["mmvc.api.ITriggerMap"], inject : null}}};
 images_gallery_command_LoadGalleryCommand.__meta__ = { fields : { list : { type : ["images.gallery.model.Gallery"], inject : null}}};

@@ -1,5 +1,6 @@
 package images.app;
 
+import images.gallery.model.Image;
 import images.gallery.model.Lightbox;
 class ApplicationViewMediator extends mmvc.impl.Mediator<ApplicationView>
 {
@@ -13,14 +14,14 @@ class ApplicationViewMediator extends mmvc.impl.Mediator<ApplicationView>
     override function onRegister()
     {
         super.onRegister();
-        view.createGallery();
         view.createLightbox();
+        view.createGallery();
 
         lightbox.dataChanged.add(updateLightbox);
     }
 
     public function updateLightbox(){
-        view.updateLightbox();
+        view.updateLightbox(lightbox.data);
     }
 
     override public function onRemove():Void
