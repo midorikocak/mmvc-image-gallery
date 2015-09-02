@@ -62,6 +62,12 @@ class View
     inline public static var ACTIONED:String = "actioned";
 
 /**
+	Event type dispatched when view is actioned (e.g. clicked)
+	*/
+    inline public static var UNHIDEGALLERY:String = "unhide_gallery";
+
+
+/**
 	private counter to maintain unique identifieds for created views
 	*/
     static var idCounter:Int = 0;

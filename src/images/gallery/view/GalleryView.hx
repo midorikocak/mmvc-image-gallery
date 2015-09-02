@@ -22,6 +22,7 @@ SOFTWARE.
 
 package images.gallery.view;
 
+import images.gallery.view.LightboxView;
 import images.core.View;
 import images.gallery.model.Gallery;
 
@@ -73,9 +74,23 @@ class GalleryView extends View
                 {
                     if (Std.is(view, ImageView))
                     {
-                        var imageView = cast view;
+                        var imageView:ImageView = cast view;
                         trace('clicked');
+                        //trace(imageView.data);
+                        //element.remove();
+                        var lightboxView = new LightboxView();
+                        lightboxView.data = imageView.data;
+                        clearData();
+                        addChild(lightboxView);
                     }
+                }
+            case View.UNHIDEGALLERY:
+                if (Std.is(view, LightboxView))
+                {
+                    var lightboxView:LightboxView = cast view;
+                    trace('close');
+                    updateData();
+                    removeChild(lightboxView);
                 }
             default:
                 {
@@ -85,13 +100,7 @@ class GalleryView extends View
     }
 
 
-
-
-/**
-	updates child views based on current size of data
-	*/
-    function updateData()
-    {
+    function clearData(){
         for(child in children.concat([]))
         {
             if (Std.is(child, ImageView))
@@ -99,6 +108,15 @@ class GalleryView extends View
                 removeChild(child);
             }
         }
+    }
+
+
+/**
+	updates child views based on current size of data
+	*/
+    function updateData()
+    {
+        clearData();
 
         if (data != null)
         {
