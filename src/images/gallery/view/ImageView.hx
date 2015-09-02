@@ -26,7 +26,6 @@ import js.Browser;
 import js.html.ImageElement;
 import js.html.Element;
 import images.core.View;
-import images.core.DataView;
 
 import images.gallery.model.Image;
 
@@ -39,48 +38,31 @@ View for a single Image model.
 
 @see example.core.DataView
 */
-class ImageView extends DataView<Image>
+class ImageView extends View
 {
-    var title:String;
-    var author:String;
-    var description:String;
-    var src:String;
+    public var data(default,set):Image;
 
 
-/**
-	Overrides constructor to set js tagName to list item (li)
-	@param data  	default Image model
-	@see images.core.DataView
-	*/
-    public function new(?data:Image)
+    public function new()
     {
         tagName = "li";
-        title = "";
-        author = "";
-        description = "";
-        src = "";
-        super(data);
+        super();
     }
 
-/**
-	Overrides dataChanged to update internal properties
-	@see example.core.DataView
-	*/
-
-    override function dataChanged()
-    {
-        super.dataChanged();
-        title = data != null ? data.title : "";
-        author =  data != null ? data.author : "";
-        description = data != null ? data.description : "";
-        src =  data != null ? data.src : "";
-
-        var image:ImageElement = Browser.document.createImageElement();
-        image.setAttribute("src",src);
-        trace(image);
-        element.appendChild(image);
+    function set_data(value:Image):Image{
+        if(data!=value){
+            data = value;
+            updateData();
+        }
+        return value;
     }
 
+    function updateData(){
+        var imageElement:ImageElement = Browser.document.createImageElement();
+        imageElement.src = data.src;
+        imageElement.alt = data.title;
+        element.appendChild(imageElement);
+    }
 /**
 	Overrides initialized to set click handlers and
 	to initialise sub views on flash target
@@ -103,18 +85,6 @@ class ImageView extends DataView<Image>
         element.onclick = null;
     }
 
-/**
-	Overrides update to set view specific properties in js
-	@see images.core.View
-	*/
-    override function update()
-    {
-        //element.innerHTML =src;
-        //element. ="img";
-
-        //element.className = className + (done? " done" : "");
-        trace("ID: " + toString() + ", title: " + title + ", author: " + author + ", description: " + description + ", src: " + src + ", index: " + index);
-    }
 
 /**
 		JS only: dispatches ACTIONED event on mouse click

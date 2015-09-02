@@ -93,10 +93,6 @@ class ApplicationView extends View implements mmvc.api.IViewContainer
     override function initialize()
     {
         super.initialize();
-#if flash
-        flash.Lib.current.addChild(sprite);
-#elseif js
         js.Browser.document.body.appendChild(element);
-#end
     }
 }

@@ -42,7 +42,7 @@ class GalleryViewMediator extends mmvc.impl.Mediator<GalleryView>
 {
     @inject public var loadGallery:LoadGallery;
 
-    var list:Gallery;
+    //var list:Gallery;
 
     public function new()
     {
@@ -59,7 +59,7 @@ class GalleryViewMediator extends mmvc.impl.Mediator<GalleryView>
 //using mediate() to store listeners for easy cleanup during removal
         mediate(view.signal.add(viewHandler));
         mediate(loadGallery.completed.addOnce(loadCompleted));
-        mediate(loadGallery.failed.addOnce(loadFailed));
+        //mediate(loadGallery.failed.addOnce(loadFailed));
 
         loadGallery.dispatch();
     }
@@ -80,14 +80,17 @@ class GalleryViewMediator extends mmvc.impl.Mediator<GalleryView>
 	*/
     function loadCompleted(list:Gallery)
     {
-        this.list = list;
-        view.setData(list);
+        //this.list = list;
+        //view.setData(list);
+        view.data = list;
     }
 
+    /*
     function loadFailed(error:Dynamic)
     {
         view.showError(Std.string(error));
     }
+    */
 
 /**
 	Adds a new todo item to the model when CREATE_TODO event is dispatched
