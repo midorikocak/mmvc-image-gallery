@@ -1,6 +1,6 @@
 package images.gallery.view;
 
-import msignal.Signal.Signal1;
+import msignal.Signal;
 import images.gallery.model.Image;
 import js.Browser;
 import js.html.ImageElement;
@@ -13,6 +13,8 @@ class LightboxView extends View
 {
     public var lightboxUpdated:Signal1<Image>;
 
+    public var closeLightbox:Signal0;
+
     var imageElement:ImageElement;
     var titleElement:Element;
     var descriptionElement:Element;
@@ -24,8 +26,6 @@ class LightboxView extends View
         tagName = "div";
         super();
 
-        element.hidden = true;
-
         imageElement = Browser.document.createImageElement();
         titleElement = Browser.document.createElement('h2');
         descriptionElement = Browser.document.createElement('p');
@@ -35,10 +35,11 @@ class LightboxView extends View
         closeElement.innerText = "Close";
 
         closeElement.onclick = function(event:js.html.Event){
-            element.hidden = true;
+            closeLightbox.dispatch();
         };
 
         lightboxUpdated = new Signal1();
+        closeLightbox = new Signal0();
 
         element.appendChild(titleElement);
         element.appendChild(closeElement);
@@ -50,14 +51,18 @@ class LightboxView extends View
 
     public function updateData(data:Image)
     {
+        if(data==null){
+            element.hidden = true;
+        }
+        else{
+            element.hidden = false;
+            imageElement.src = data.src;
+            imageElement.alt = data.title;
 
-        imageElement.src = data.src;
-        imageElement.alt = data.title;
-
-        titleElement.innerText = data.title;
-        descriptionElement.innerText = data.description;
-        authorElement.innerText = data.author;
-
+            titleElement.innerText = data.title;
+            descriptionElement.innerText = data.description;
+            authorElement.innerText = data.author;
+        }
     }
 
     override function initialize()

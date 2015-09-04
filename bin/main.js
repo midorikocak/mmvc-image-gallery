@@ -1372,7 +1372,6 @@ var images_gallery_view_LightboxView = function() {
 	var _g = this;
 	this.tagName = "div";
 	images_core_View.call(this);
-	this.element.hidden = true;
 	var _this = window.document;
 	this.imageElement = _this.createElement("img");
 	this.titleElement = window.document.createElement("h2");
@@ -1382,9 +1381,10 @@ var images_gallery_view_LightboxView = function() {
 	this.closeElement.className = "closeLightbox";
 	this.closeElement.innerText = "Close";
 	this.closeElement.onclick = function(event) {
-		_g.element.hidden = true;
+		_g.closeLightbox.dispatch();
 	};
 	this.lightboxUpdated = new msignal_Signal1();
+	this.closeLightbox = new msignal_Signal0();
 	this.element.appendChild(this.titleElement);
 	this.element.appendChild(this.closeElement);
 	this.element.appendChild(this.imageElement);
@@ -1396,11 +1396,14 @@ images_gallery_view_LightboxView.__name__ = ["images","gallery","view","Lightbox
 images_gallery_view_LightboxView.__super__ = images_core_View;
 images_gallery_view_LightboxView.prototype = $extend(images_core_View.prototype,{
 	updateData: function(data) {
-		this.imageElement.src = data.src;
-		this.imageElement.alt = data.title;
-		this.titleElement.innerText = data.title;
-		this.descriptionElement.innerText = data.description;
-		this.authorElement.innerText = data.author;
+		if(data == null) this.element.hidden = true; else {
+			this.element.hidden = false;
+			this.imageElement.src = data.src;
+			this.imageElement.alt = data.title;
+			this.titleElement.innerText = data.title;
+			this.descriptionElement.innerText = data.description;
+			this.authorElement.innerText = data.author;
+		}
 	}
 	,initialize: function() {
 		images_core_View.prototype.initialize.call(this);
@@ -1423,9 +1426,14 @@ images_gallery_view_LightboxViewMediator.prototype = $extend(mmvc_impl_TriggerMe
 	onRegister: function() {
 		console.log("lightbox registered");
 		this.lightbox.dataChanged.add($bind(this,this.onUpdate));
+		this.view.updateData(this.lightbox.data);
+		this.view.closeLightbox.add($bind(this,this.onClose));
 	}
 	,onRemove: function() {
 		mmvc_impl_TriggerMediator.prototype.onRemove.call(this);
+	}
+	,onClose: function() {
+		this.lightbox.set_data(null);
 	}
 	,onUpdate: function() {
 		console.log("on update runs");

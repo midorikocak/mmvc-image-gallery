@@ -21,11 +21,17 @@ class LightboxViewMediator extends mmvc.impl.TriggerMediator<LightboxView>
     {
         trace('lightbox registered');
         lightbox.dataChanged.add(onUpdate);
+        view.updateData(lightbox.data);
+        view.closeLightbox.add(onClose);
     }
 
     override public function onRemove():Void
     {
         super.onRemove();
+    }
+
+    function onClose(){
+        lightbox.data = null;
     }
 
     function onUpdate()
