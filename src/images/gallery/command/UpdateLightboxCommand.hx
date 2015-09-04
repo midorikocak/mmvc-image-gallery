@@ -3,6 +3,7 @@ package images.gallery.command;
 import images.gallery.model.Lightbox;
 import images.gallery.trigger.UpdateLightbox;
 import images.gallery.model.Image;
+import mmvc.impl.TriggerCommand;
 
 /*
  * The command controls the signals and triggers

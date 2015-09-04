@@ -31,7 +31,8 @@ class LightboxViewMediator extends mmvc.impl.TriggerMediator<LightboxView>
     }
 
     function onClose(){
-        lightbox.data = null;
+        //lightbox.data = null;
+        dispatch(new UpdateLightbox(null));
     }
 
     function onUpdate()

@@ -1433,7 +1433,7 @@ images_gallery_view_LightboxViewMediator.prototype = $extend(mmvc_impl_TriggerMe
 		mmvc_impl_TriggerMediator.prototype.onRemove.call(this);
 	}
 	,onClose: function() {
-		this.lightbox.set_data(null);
+		this.dispatch(new images_gallery_trigger_UpdateLightbox(null));
 	}
 	,onUpdate: function() {
 		console.log("on update runs");
