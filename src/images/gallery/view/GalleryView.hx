@@ -15,7 +15,9 @@ class GalleryView extends View
     public function new()
     {
         tagName = "ul";
+        // Signal to notify mediator from view. Click event
         itemSelected = new Signal1();
+        trace('gallery view is created at app view mediator');
         super();
     }
 
@@ -32,6 +34,7 @@ class GalleryView extends View
 
     override public function dispatch(event:String, view:View)
     {
+        // different view events are handled here and informed the mediator
         switch(event)
         {
             case View.ACTIONED:

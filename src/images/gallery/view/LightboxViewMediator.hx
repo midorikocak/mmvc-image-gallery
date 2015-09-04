@@ -1,10 +1,13 @@
 package images.gallery.view;
-
-import images.gallery.model.Image;
 import images.gallery.model.Lightbox;
+import images.gallery.trigger.UpdateLightbox;
+import images.gallery.model.Image;
 import images.gallery.view.LightboxView;
-import images.gallery.trigger.LoadLightbox;
 
+/*
+ * A mediator is like a helper to handle view variables and keep the view logic out of views.
+ * Single responsibility darling!
+ */
 class LightboxViewMediator extends mmvc.impl.TriggerMediator<LightboxView>
 {
     @inject public var lightbox:Lightbox;
@@ -16,9 +19,8 @@ class LightboxViewMediator extends mmvc.impl.TriggerMediator<LightboxView>
 
     override function onRegister()
     {
-        var trigger = new LoadLightbox();
-        trigger.completed.addOnce(loadCompleted);
-        dispatch(trigger);
+        trace('lightbox registered');
+        lightbox.dataChanged.add(onUpdate);
     }
 
     override public function onRemove():Void
@@ -26,10 +28,10 @@ class LightboxViewMediator extends mmvc.impl.TriggerMediator<LightboxView>
         super.onRemove();
     }
 
-    function loadCompleted(lightbox:Lightbox)
+    function onUpdate()
     {
-        trace('load completed?');
-        view.data = lightbox.data;
+        trace('on update runs');
+        view.updateData(lightbox.data);
     }
 
 }

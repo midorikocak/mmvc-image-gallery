@@ -1,10 +1,6 @@
 package images.app;
-
-import images.gallery.model.Lightbox;
-import images.gallery.model.Image;
 import images.gallery.view.LightboxView;
 import images.gallery.view.GalleryView;
-import images.gallery.model.Gallery;
 import images.core.View;
 
 class ApplicationView extends View implements mmvc.api.IViewContainer
@@ -22,6 +18,7 @@ class ApplicationView extends View implements mmvc.api.IViewContainer
     public function createGallery()
     {
         var galleryView:GalleryView = new images.gallery.view.GalleryView();
+        trace('new gallery created');
         addChild(galleryView);
     }
 
@@ -29,11 +26,6 @@ class ApplicationView extends View implements mmvc.api.IViewContainer
     {
         lightboxView = new images.gallery.view.LightboxView();
         addChild(lightboxView);
-    }
-
-    public function updateLightbox(data:Image){
-        trace('update but where?');
-        lightboxView.data = data;
     }
 
     override public function dispatch(event:String, view:View)

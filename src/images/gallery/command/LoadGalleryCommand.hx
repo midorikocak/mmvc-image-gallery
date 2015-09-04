@@ -7,6 +7,9 @@ import images.gallery.model.Image;
 import mcore.loader.Loader;
 import mcore.loader.JSONLoader;
 
+/*
+*  A Command. it's the controller that handles the business logic
+*/
 class LoadGalleryCommand extends mmvc.impl.TriggerCommand<LoadGallery>
 {
     @inject
@@ -21,7 +24,6 @@ class LoadGalleryCommand extends mmvc.impl.TriggerCommand<LoadGallery>
 
     override public function execute():Void
     {
-        trace('loaded');
         loader = new JSONLoader("data/data.json");
         loader.completed.addOnce(onCompleted);
         loader.failed.addOnce(failed);

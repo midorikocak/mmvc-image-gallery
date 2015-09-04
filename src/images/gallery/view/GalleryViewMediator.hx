@@ -1,15 +1,19 @@
 package images.gallery.view;
 
+import js.Browser;
+import js.html.Element;
+import images.gallery.trigger.UpdateLightbox;
 import images.gallery.model.Gallery;
 import images.gallery.model.Image;
-import images.gallery.model.Lightbox;
 import images.gallery.view.GalleryView;
 import images.gallery.trigger.LoadGallery;
 
+/*
+ * A mediator can interact with models and commands.
+ */
+
 class GalleryViewMediator extends mmvc.impl.TriggerMediator<GalleryView>
 {
-    @inject public var lightbox:Lightbox;
-
     public function new()
     {
         super();
@@ -17,16 +21,20 @@ class GalleryViewMediator extends mmvc.impl.TriggerMediator<GalleryView>
 
     override function onRegister()
     {
+        // Load gallery comand is called from the view register event
         var trigger = new LoadGallery();
+        // the trigger completed signal added to loadCompleted method
         trigger.completed.addOnce(loadCompleted);
-        dispatch(trigger);
+        // view itemselected signal catched and added to the method
         view.itemSelected.add(onItemSelected);
+        dispatch(trigger);
     }
 
     function onItemSelected(data:Image)
     {
-        trace('clicked');
-        lightbox.data = data;
+        dispatch(new UpdateLightbox(data));
+        trace('update lightbox data command dispatched');
+        trace('item selected');
     }
 
     override public function onRemove():Void
@@ -37,6 +45,7 @@ class GalleryViewMediator extends mmvc.impl.TriggerMediator<GalleryView>
 
     function loadCompleted(list:Gallery)
     {
+        // view's data property changed here.
         view.data = list;
     }
 

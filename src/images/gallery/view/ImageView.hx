@@ -92,6 +92,8 @@ class ImageView extends View
     function js_onClick(event:js.html.Event)
     {
         dispatch(View.ACTIONED, this);
+        var lightboxElement = Browser.document.getElementsByClassName('LightboxView');
+        lightboxElement[0].hidden = false;
     }
 
 }

@@ -1,10 +1,10 @@
 package images.app;
 
-import images.gallery.view.LightboxViewMediator;
-import images.gallery.trigger.LoadLightbox;
-import images.gallery.command.LoadLightboxCommand;
-import images.gallery.view.LightboxView;
 import images.gallery.model.Lightbox;
+import images.gallery.command.UpdateLightboxCommand;
+import images.gallery.trigger.UpdateLightbox;
+import images.gallery.view.LightboxViewMediator;
+import images.gallery.view.LightboxView;
 import mmvc.api.IViewContainer;
 
 import images.app.ApplicationView;
@@ -25,7 +25,7 @@ class ApplicationContext extends mmvc.impl.Context {
 
     override public function startup() {
         triggerMap.map(LoadGallery, LoadGalleryCommand);
-        triggerMap.map(LoadLightbox, LoadLightboxCommand);
+        triggerMap.map(UpdateLightbox, UpdateLightboxCommand);
 
         injector.mapSingleton(Gallery);
         injector.mapSingleton(Lightbox);
